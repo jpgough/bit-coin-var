@@ -1,0 +1,8 @@
+.gradle/
+.idea/
+build/
+get-pip.py
+gradle/
+gradlew
+gradlew.bat
+out/
