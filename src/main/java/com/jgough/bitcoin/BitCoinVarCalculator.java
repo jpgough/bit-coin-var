@@ -16,17 +16,22 @@ import java.util.Map;
 @Service
 public class BitCoinVarCalculator {
 
+    public BitCoinVarCalculator() {
+        JsonParserFactory factory = JsonParserFactory.getInstance();
+        this.parser = factory.newJsonParser();
+    }
+
     @Autowired
     private RestTemplate restTemplate;
 
+    private final DateTimeFormatter formatToDate = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+    private final JSONParser parser;
+
     public double calculateVar(double amount) {
-        List<Double> dailyBTCPrices = new ArrayList<>();  // the list of daily BTC prices
-        List<Double> dailyBTCPriceEvolution = new ArrayList<>(); // the list of daily BTC price evolution, named as return
 
         LocalDate endDate = LocalDate.now().minusDays(2);
         LocalDate beginDate = endDate.minusYears(1);
-
-        DateTimeFormatter formatToDate = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         //Move to injected dependency for testing
         Map<String, String> params = new HashMap<>();
@@ -35,8 +40,6 @@ public class BitCoinVarCalculator {
         String coinDeskResult = restTemplate.getForObject("https://api.coindesk.com/v1/bpi/historical/close.json?start={startDate}&end={endDate}",
                 String.class, params);
 
-        JsonParserFactory factory = JsonParserFactory.getInstance();
-        JSONParser parser = factory.newJsonParser();
         Map data = parser.parseJson(coinDeskResult);
         Map prices = (Map) data.get("bpi");
 
@@ -44,20 +47,18 @@ public class BitCoinVarCalculator {
 
         LocalDate currentDate = beginDate;
 
+        List<Double> dailyBTCPrices = new ArrayList<>();  
         while (currentDate.isBefore(endDate)) {  // looking up each date in the parsed data and getting the price
             dailyBTCPrices.add(Double.parseDouble((String) prices.get(currentDate.format(formatToDate))));
             currentDate = currentDate.plusDays(1);
         }
 
+        List<Double> dailyBTCPriceEvolution = new ArrayList<>(); // the list of daily BTC price evolution, named as return
         for (int i = 1; i <= dailyBTCPrices.size() - 1; i++) { // calculating daily return and adding it to the return list
             dailyBTCPriceEvolution.add(dailyBTCPrices.get(i)/dailyBTCPrices.get(i-1)*100 - 100);
         }
 
-        double sumOfReturn = 0;
-
-        for (Double priceEvolution : dailyBTCPriceEvolution) { // getting the sum of returns
-            sumOfReturn += priceEvolution;
-        }
+        double sumOfReturn = dailyBTCPriceEvolution.stream().reduce(0.0, Double::sum);
 
         double averageOfReturn = sumOfReturn/dailyBTCPriceEvolution.size(); // calculating average of returns
         double std_dev = getStdDev(dailyBTCPriceEvolution, averageOfReturn); // standard deviation using the method
@@ -67,11 +68,8 @@ public class BitCoinVarCalculator {
 
 
     private double getStdDev(List<Double> priceEvolution, double average) {
-        Double sumOfDiff = 0d;
-        for (Double returnValue : priceEvolution) {
-            sumOfDiff += Math.pow(returnValue - average, 2)/priceEvolution.size();  // formula of standard deviation
-        }
-        return Math.sqrt(sumOfDiff);
+        return Math.sqrt(priceEvolution.stream().map(evolution -> Math.pow(evolution - average, 2)/priceEvolution.size())
+                .reduce(0.0, Double::sum));
     }
 
 }
