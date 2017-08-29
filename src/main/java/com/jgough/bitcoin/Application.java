@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import java.net.MalformedURLException;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -22,13 +21,13 @@ public class Application {
 
     @RequestMapping("/")
     @ResponseBody
-    public String calculateBitCoinUSDVar() throws MalformedURLException {
+    public String calculateBitCoinUSDVar() {
         return calculateBitCoinUSDCustomVar(200);
     }
 
     @RequestMapping(value = "/", params = {"amount"})
     @ResponseBody
-    public String calculateBitCoinUSDCustomVar(@RequestParam(value="amount") double amount) throws MalformedURLException {
+    public String calculateBitCoinUSDCustomVar(@RequestParam(value="amount") double amount) {
         double VaR = calculateVar(amount);
         Locale usd = new Locale("en","US");
         NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(usd);
@@ -36,7 +35,7 @@ public class Application {
         return "<h3>Value at risk for " + amount + " BTC during next 10 days equals " + currencyFormat.format(VaR) + "</h3>";
     }
 
-    private double calculateVar(double amount) throws MalformedURLException {
+    private double calculateVar(double amount) {
         List<Double> dailyBTCPrices = new ArrayList<>();  // the list of daily BTC prices
         List<Double> dailyBTCPriceEvolution = new ArrayList<>(); // the list of daily BTC price evolution, named as return
 
