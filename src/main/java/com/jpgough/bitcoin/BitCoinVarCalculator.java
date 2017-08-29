@@ -1,4 +1,4 @@
-package com.jgough.bitcoin;
+package com.jpgough.bitcoin;
 
 import com.codesnippets4all.json.parsers.JSONParser;
 import com.codesnippets4all.json.parsers.JsonParserFactory;
@@ -47,7 +47,7 @@ public class BitCoinVarCalculator {
 
         LocalDate currentDate = beginDate;
 
-        List<Double> dailyBTCPrices = new ArrayList<>();  
+        List<Double> dailyBTCPrices = new ArrayList<>();
         while (currentDate.isBefore(endDate)) {  // looking up each date in the parsed data and getting the price
             dailyBTCPrices.add(Double.parseDouble((String) prices.get(currentDate.format(formatToDate))));
             currentDate = currentDate.plusDays(1);

@@ -1,4 +1,4 @@
-package com.jgough.bitcoin;
+package com.jpgough.bitcoin;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

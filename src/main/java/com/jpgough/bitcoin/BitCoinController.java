@@ -1,19 +1,16 @@
-package com.jgough.bitcoin;
+package com.jpgough.bitcoin;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.Locale;
 
-@SpringBootApplication
 @RestController
-public class Application {
+public class BitCoinController {
 
     @Autowired
     private BitCoinVarCalculator bitCoinVarCalculator;
@@ -32,9 +29,5 @@ public class Application {
         NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(usd);
 
         return "<h3>Value at risk for " + amount + " BTC during next 10 days equals " + currencyFormat.format(VaR) + "</h3>";
-    }
-
-    public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
     }
 }
