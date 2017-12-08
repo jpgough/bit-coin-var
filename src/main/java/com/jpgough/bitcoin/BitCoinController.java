@@ -1,10 +1,8 @@
 package com.jpgough.bitcoin;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -15,19 +13,21 @@ public class BitCoinController {
     @Autowired
     private BitCoinVarCalculator bitCoinVarCalculator;
 
-    @RequestMapping("/")
+    @RequestMapping(value = "/", method= RequestMethod.GET)
     @ResponseBody
-    public String calculateBitCoinUSDVar() {
+    @ResponseStatus(HttpStatus.OK)
+    public RiskResponse calculateBitCoinUSDVar() {
         return calculateBitCoinUSDCustomVar(200);
     }
 
-    @RequestMapping(value = "/", params = {"amount"})
+    @RequestMapping(value = "/", params = {"amount"}, method= RequestMethod.GET)
     @ResponseBody
-    public String calculateBitCoinUSDCustomVar(@RequestParam(value="amount") double amount) {
+    @ResponseStatus(HttpStatus.OK)
+    public RiskResponse calculateBitCoinUSDCustomVar(@RequestParam(value="amount") double amount) {
         double VaR = bitCoinVarCalculator.calculateVar(amount);
         Locale usd = new Locale("en","US");
         NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(usd);
 
-        return "<h3>Value at risk for " + amount + " BTC during next 10 days equals " + currencyFormat.format(VaR) + "</h3>";
+        return new RiskResponse(10, amount ,VaR, currencyFormat.format(VaR));
     }
 }
