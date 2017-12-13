@@ -30,4 +30,11 @@ public class BitCoinController {
 
         return new RiskResponse(10, amount ,VaR, currencyFormat.format(VaR));
     }
+
+    @RequestMapping(value="/advice", method = RequestMethod.GET)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.OK)
+    public AdviceResponse processAdviceRequest() {
+        return new AdviceResponse("Forecast Average - Hold", "This is a toy service, advice is totally bogus");
+    }
 }
